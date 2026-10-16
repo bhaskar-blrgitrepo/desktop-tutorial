@@ -1,0 +1,279 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#12366a">
+  <title>Impact360 SaaS</title>
+  <style>
+    :root {
+      color-scheme: light;
+      --navy:#12366a;--navy-dark:#0b2854;--blue:#287fe5;--cyan:#11a9be;
+      --green:#159879;--amber:#df8a28;--purple:#7658cd;--red:#c54e59;
+      --ink:#203552;--muted:#6a7b91;--line:#e1e8f0;--paper:#fff;--canvas:#f4f7fb;
+      font-family:"Segoe UI",Arial,sans-serif;font-synthesis:none
+    }
+    *{box-sizing:border-box}
+    body{margin:0;color:var(--ink);background:var(--canvas)}
+    button,input,select,textarea{font:inherit}
+    button{cursor:pointer}
+    .hidden{display:none!important}
+    .topbar{position:sticky;top:0;z-index:2;display:flex;align-items:center;justify-content:space-between;min-height:68px;padding:10px 28px;color:#fff;background:var(--navy);box-shadow:0 2px 12px #102c531a}
+    .brand{display:flex;align-items:center;gap:11px;font-size:17px;font-weight:750}
+    .brand-mark{display:grid;width:36px;height:36px;place-items:center;border:3px solid #40c8e3;border-radius:50%;color:#8fe8f3;font-size:18px}
+    .brand small{display:block;margin-top:2px;color:#bfd1e7;font-size:11px;font-weight:450}
+    .top-actions{display:flex;align-items:center;gap:12px}
+    .user-box{text-align:right}.user-box strong{display:block;font-size:12px}.user-box span{color:#bfd1e7;font-size:10px}
+    .layout{display:grid;grid-template-columns:220px minmax(0,1fr);min-height:calc(100vh - 68px)}
+    .sidebar{padding:22px 13px;border-right:1px solid var(--line);background:white}
+    .side-label{margin:0 12px 10px;color:#94a1b1;font-size:10px;font-weight:750;letter-spacing:1px;text-transform:uppercase}
+    .nav-button{display:flex;align-items:center;gap:10px;width:100%;margin:4px 0;padding:11px 12px;border:0;border-radius:9px;color:#52657d;background:transparent;text-align:left;font-size:13px}
+    .nav-button:hover{background:#f3f6fa}.nav-button.active{color:var(--navy);background:#eaf2fd;font-weight:700}
+    .nav-icon{width:19px;text-align:center;font-size:16px}
+    .side-note{margin:25px 5px 0;padding:12px;border:1px solid #d9edf4;border-radius:10px;background:#f1fbfd}
+    .side-note strong{display:block;margin-bottom:5px;color:#137387;font-size:12px}
+    .side-note p{margin:0;color:#5d7488;font-size:11px;line-height:1.5}
+    main{min-width:0;padding:26px 28px 40px}
+    .view{display:none}.view.active{display:block}
+    .page-heading{display:flex;align-items:flex-start;justify-content:space-between;gap:15px;margin-bottom:19px}
+    h1{margin:0;color:var(--navy-dark);font-size:25px;letter-spacing:-.4px}
+    h2{margin:0;color:var(--navy-dark);font-size:15px}
+    h3{margin:0;color:#2f4561;font-size:13px}
+    .subtitle{margin:6px 0 0;color:var(--muted);font-size:13px}
+    .date-pill{padding:8px 10px;border:1px solid var(--line);border-radius:8px;color:#536780;background:white;font-size:10px;white-space:nowrap}
+    .notice{margin-bottom:17px;padding:11px 14px;border:1px solid #d8e4f3;border-radius:9px;color:#4d6380;background:#f5f9ff;font-size:12px;line-height:1.5}
+    .notice.warning{border-color:#f1d9ae;color:#805414;background:#fff8ec}
+    .stats{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:13px;margin-bottom:17px}
+    .stat,.panel{border:1px solid var(--line);border-radius:12px;background:var(--paper);box-shadow:0 2px 7px #16335408}
+    .stat{min-height:103px;padding:15px}
+    .stat-top{display:flex;align-items:center;justify-content:space-between;color:var(--muted);font-size:12px}
+    .stat-icon{display:grid;width:28px;height:28px;place-items:center;border-radius:9px;background:#edf4ff;font-size:15px}
+    .stat-value{margin-top:7px;color:var(--navy-dark);font-size:25px;font-weight:750}
+    .stat-caption{margin-top:2px;color:#8995a5;font-size:10px}
+    .two-col{display:grid;grid-template-columns:minmax(0,1.2fr) minmax(280px,.8fr);gap:15px;margin-bottom:16px}
+    .panel{min-width:0;padding:17px}
+    .panel-heading{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:14px}
+    .panel-subtitle{margin-top:4px;color:var(--muted);font-size:11px}
+    .select,.search,.field input,.field select,.field textarea{width:100%;min-height:35px;padding:7px 9px;border:1px solid var(--line);border-radius:7px;color:#43566f;background:white;font-size:11px}
+    .kpi-list{display:grid;gap:13px}
+    .kpi-row{display:grid;grid-template-columns:minmax(115px,1.1fr) minmax(70px,1.7fr) auto;gap:10px;align-items:center}
+    .kpi-name{color:#354a66;font-size:11px;font-weight:650}
+    .kpi-dept{display:block;margin-top:3px;color:#8a97a7;font-size:9px;font-weight:400}
+    .progress-track{height:7px;overflow:hidden;border-radius:9px;background:#edf1f6}
+    .progress-fill{height:100%;border-radius:inherit;background:var(--blue)}
+    .kpi-number{min-width:64px;color:#51647c;font-size:9px;text-align:right}
+    .queue-list{display:grid;gap:9px}
+    .queue-item{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:9px;border:1px solid #edf0f4;border-radius:9px}
+    .queue-name{color:#344963;font-size:11px;font-weight:650}
+    .queue-detail{margin-top:3px;color:#8793a2;font-size:10px}
+    .badge{display:inline-block;padding:4px 7px;border-radius:99px;font-size:9px;font-weight:700;white-space:nowrap}
+    .badge.pending{color:#97600f;background:#fff2d9}.badge.approved{color:#117a60;background:#e2f6ef}
+    .badge.declined{color:#a94452;background:#fde9eb}.badge.info{color:#3d63a0;background:#eaf1ff}
+    .table-panel{padding:0;overflow:hidden}.table-toolbar{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:16px 17px}
+    .table-scroll{overflow:auto}table{width:100%;border-collapse:collapse;text-align:left}
+    th{padding:10px 13px;color:#8390a0;background:#f8fafc;font-size:9px;font-weight:700;white-space:nowrap}
+    td{padding:10px 13px;border-top:1px solid #eef1f5;color:#50627a;font-size:10px;vertical-align:middle}
+    .person-cell{display:flex;align-items:center;gap:8px;min-width:170px}
+    .avatar{display:grid;width:28px;height:28px;flex:none;place-items:center;border-radius:50%;color:#3163a2;background:#e8f1ff;font-size:9px;font-weight:750}
+    .person-name{color:#293e59;font-weight:700}.person-title{display:block;margin-top:2px;color:#8995a3;font-size:9px}
+    .table-footer{padding:10px 16px;border-top:1px solid #eef1f5;color:#8290a0;font-size:10px}
+    .employee-toolbar{display:flex;align-items:center;gap:7px}.empty{padding:23px;color:var(--muted);font-size:12px;text-align:center}
+    .nomination-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+    .nomination-card{padding:14px;border:1px solid var(--line);border-radius:10px;background:white}
+    .nomination-head{display:flex;align-items:flex-start;justify-content:space-between;gap:8px}
+    .nomination-card p{margin:8px 0;color:#748399;font-size:11px;line-height:1.5}
+    .nomination-actions,.row-actions{display:flex;flex-wrap:wrap;gap:6px;align-items:center}
+    .row-actions{min-width:155px}.review-note{margin-top:4px;color:#8793a2;font-size:9px}
+    .btn{padding:7px 10px;border:1px solid var(--line);border-radius:7px;color:#425873;background:white;font-size:10px;font-weight:650}
+    .btn:hover:not(:disabled){background:#f4f7fb}.btn.primary{border-color:var(--blue);color:white;background:var(--blue)}
+    .btn.primary:hover:not(:disabled){background:#1769c8}.btn.danger{color:#a94452}
+    .btn:disabled{cursor:not-allowed;opacity:.6}.btn.small{padding:5px 7px;font-size:9px}
+    .form-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:11px}
+    .field label{display:block;margin-bottom:5px;color:#596b81;font-size:10px;font-weight:650}
+    .field textarea{min-height:70px;resize:vertical}
+    .form-actions{display:flex;align-items:center;gap:9px;margin-top:13px}
+    .form-section{margin-bottom:17px}.muted{color:#8290a0;font-size:9px}
+    .footer-note{margin-top:15px;color:#8a97a6;font-size:10px;text-align:center}
+    .auth-screen{display:grid;min-height:100vh;grid-template-columns:minmax(0,1.2fr) minmax(330px,.8fr);background:var(--canvas)}
+    .auth-info{display:flex;flex-direction:column;justify-content:center;padding:8vw;color:white;background:linear-gradient(145deg,#0b2854,#164781)}
+    .auth-info .brand{font-size:21px}.auth-info h1{max-width:650px;margin-top:42px;color:white;font-size:40px;line-height:1.13}
+    .auth-info p{max-width:560px;color:#d1e0f2;font-size:15px;line-height:1.7}
+    .auth-points{display:grid;gap:11px;margin-top:25px;color:#e1edf9;font-size:12px}
+    .auth-points span:before{content:"✓";margin-right:9px;color:#53d5bc;font-weight:800}
+    .auth-main{display:grid;place-items:center;padding:27px}
+    .auth-card{width:min(100%,440px);padding:25px;border:1px solid var(--line);border-radius:15px;background:white;box-shadow:0 15px 50px #102c5315}
+    .auth-card h2{font-size:19px}.auth-card>p{margin:6px 0 18px;color:var(--muted);font-size:12px}
+    .auth-tabs{display:grid;grid-template-columns:1fr 1fr;gap:5px;margin-bottom:17px;padding:4px;border-radius:9px;background:#f1f4f8}
+    .auth-tab{padding:8px;border:0;border-radius:7px;color:#61738b;background:transparent;font-size:11px}
+    .auth-tab.active{color:var(--navy);background:white;font-weight:700;box-shadow:0 1px 4px #162a4215}
+    .auth-form{display:grid;gap:11px}.auth-error{min-height:17px;color:var(--red);font-size:11px}
+    .demo-login{margin-top:15px;padding:11px;border:1px solid #d7e6f5;border-radius:9px;color:#526981;background:#f5f9fd;font-size:10px;line-height:1.6}
+    .demo-login strong{color:#29486c}
+    .import-errors{margin-top:13px;padding:12px;border:1px solid #efc4c5;border-radius:8px;color:#973e46;background:#fff3f3;font-size:11px;line-height:1.5}
+    .import-errors ul{margin:8px 0 0;padding-left:20px}.import-errors li{margin:3px 0}
+    .import-preview{margin-top:15px;padding:13px;border:1px solid #cce7dc;border-radius:9px;background:#f3fbf7}
+    .import-preview-note{margin-top:9px;color:#527263;font-size:10px}
+    .import-result{margin-top:13px;padding:13px;border:1px solid #cce7dc;border-radius:9px;color:#126448;background:#effbf6;font-size:11px}
+    .import-result p{color:#536f63;line-height:1.5}
+    dialog{width:min(420px,calc(100vw - 30px));padding:22px;border:1px solid var(--line);border-radius:13px;color:var(--ink);box-shadow:0 20px 70px #102c5340}
+    dialog::backdrop{background:#0c224777}.dialog-actions{display:flex;justify-content:flex-end;gap:8px;margin-top:14px}
+    #toast{position:fixed;right:20px;bottom:20px;z-index:5;max-width:min(420px,calc(100vw - 40px));padding:11px 15px;border:1px solid #b9e5d7;border-radius:9px;color:#126448;background:#effbf6;box-shadow:0 5px 24px #102c5320;font-size:12px;opacity:0;pointer-events:none;transform:translateY(8px);transition:.16s}
+    #toast.visible{opacity:1;transform:translateY(0)}#toast.error{border-color:#f1c3c5;color:#943d45;background:#fff2f2}
+    @media(max-width:1050px){.layout{grid-template-columns:185px minmax(0,1fr)}main{padding:22px 18px}.two-col{grid-template-columns:1fr}}
+    @media(max-width:720px){.auth-screen{grid-template-columns:1fr}.auth-info{display:none}.auth-main{min-height:100vh;padding:16px}.auth-card{padding:20px}.topbar{padding:10px 14px}.layout{display:block}.sidebar{display:flex;gap:4px;overflow:auto;padding:7px;border-right:0;border-bottom:1px solid var(--line)}.side-label,.side-note{display:none}.nav-button{width:auto;min-width:max-content;margin:0;padding:9px}.user-box strong{max-width:130px;overflow:hidden;text-overflow:ellipsis}.user-box span{font-size:9px}main{padding:18px 12px 30px}.stats{grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}.stat{min-height:94px;padding:12px}.page-heading{align-items:flex-start}h1{font-size:21px}.date-pill{font-size:8px}.panel{padding:13px}.nomination-grid{grid-template-columns:1fr}.table-toolbar{align-items:flex-start;flex-direction:column}.employee-toolbar{width:100%}.employee-toolbar>*{min-width:0;flex:1}.form-grid{grid-template-columns:1fr}.kpi-row{grid-template-columns:minmax(100px,1fr) minmax(50px,1fr) auto;gap:7px}.kpi-number{min-width:52px;font-size:8px}.row-actions{min-width:145px}}
+    @media(max-width:720px){.topbar{flex-wrap:wrap;gap:7px;padding:8px 12px}.brand{min-width:0;flex:1;gap:7px;font-size:15px}.brand-mark{width:31px;height:31px}.topbar .brand small{display:none}.top-actions{width:100%;justify-content:flex-end;gap:7px}.user-box{min-width:0;margin-right:auto;text-align:left}.user-box strong{max-width:125px}.user-box span{display:none}.top-actions .btn{padding:6px 8px;font-size:9px}.kpi-row{grid-template-columns:minmax(0,1fr) minmax(0,95px);gap:6px}.kpi-row .kpi-name{grid-column:1;grid-row:1}.kpi-row .progress-track{grid-column:1;grid-row:2}.kpi-row .kpi-number{grid-column:2;grid-row:1/span 2;min-width:0;max-width:95px;white-space:normal;overflow-wrap:anywhere;font-size:8px}}
+  </style>
+</head>
+<body>
+  <section class="auth-screen" id="auth-screen">
+    <div class="auth-info">
+      <div class="brand"><span class="brand-mark">i</span><div>Impact360<small>Employee Performance &amp; Recognition</small></div></div>
+      <h1>Make performance visible. Make recognition thoughtful.</h1>
+      <p>A practical workspace for employee goals, supporting evidence, performance reviews, and recognition decisions.</p>
+      <div class="auth-points"><span>Five departments and configurable KPIs</span><span>Clear review steps with a record of decisions</span><span>Company data separated by tenant</span><span>No AI services or paid APIs required</span></div>
+    </div>
+    <div class="auth-main">
+      <div class="auth-card">
+        <h2>Welcome to Impact360</h2><p>Sign in to your company workspace or create a training tenant.</p>
+        <div class="auth-tabs" id="auth-tabs"><button class="auth-tab active" data-auth="login">Sign in</button><button class="auth-tab" data-auth="register">Create workspace</button></div>
+        <div class="auth-error" id="auth-error" role="alert"></div>
+        <div id="login-panel">
+          <form class="auth-form" id="login-form">
+            <div class="field"><label for="login-email">Email</label><input id="login-email" type="email" autocomplete="username" required></div>
+            <div class="field"><label for="login-password">Password</label><input id="login-password" type="password" autocomplete="current-password" required></div>
+            <button class="btn primary" type="submit">Sign in</button>
+          </form>
+          <div class="demo-login hidden" id="demo-login"></div>
+        </div>
+        <div class="hidden" id="register-panel">
+          <form class="auth-form" id="register-form">
+            <div class="field"><label for="register-company">Company / workspace name</label><input id="register-company" maxlength="100" required></div>
+            <div class="field"><label for="register-name">Your name</label><input id="register-name" maxlength="80" autocomplete="name" required></div>
+            <div class="field"><label for="register-email">Work email</label><input id="register-email" type="email" autocomplete="email" required></div>
+            <div class="field"><label for="register-password">Password (at least 12 characters)</label><input id="register-password" type="password" minlength="12" autocomplete="new-password" required></div>
+            <button class="btn primary" type="submit">Create workspace</button>
+          </form>
+          <div class="demo-login">A new workspace starts with five departments. Its administrator can add employee accounts, goals, and fictional performance data.</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <div class="hidden" id="app-shell">
+    <header class="topbar">
+      <div class="brand"><span class="brand-mark">i</span><div id="tenant-name">Impact360<small>Employee Performance &amp; Recognition</small></div></div>
+      <div class="top-actions"><div class="user-box"><strong id="user-name"></strong><span id="user-role"></span></div><button class="btn" id="change-password-button">Password</button><button class="btn" id="logout-button">Sign out</button></div>
+    </header>
+    <div class="layout">
+      <aside class="sidebar"><p class="side-label">Workspace</p><nav id="navigation" aria-label="Main navigation"></nav><div class="side-note"><strong>Private company workspace</strong><p>All records are scoped to your signed-in company. Use fictional data for training.</p></div></aside>
+      <main>
+        <section class="view active" id="view-overview">
+          <div class="page-heading"><div><h1>Performance overview</h1><p class="subtitle">A live summary of your company’s fictional goals, submissions, and recognition cases.</p></div><span class="date-pill">COMPANY WORKSPACE</span></div>
+          <div class="notice">Impact360 starter SaaS MVP. Sign-in, role checks, tenant-scoped records, SQLite persistence, and audit history are enabled. AI and paid API integrations are disabled.</div>
+          <div class="stats" id="stats"></div>
+          <div class="two-col">
+            <section class="panel"><div class="panel-heading"><div><h2>Department KPI progress</h2><div class="panel-subtitle">Progress calculated from submitted results</div></div><select class="select" id="overview-department" aria-label="Filter department KPIs"><option value="all">All departments</option></select></div><div class="kpi-list" id="overview-kpis"></div></section>
+            <section class="panel"><div class="panel-heading"><div><h2>Recognition review queue</h2><div class="panel-subtitle">Pending nomination decisions</div></div></div><div class="queue-list" id="overview-queue"></div></section>
+          </div>
+          <section class="panel table-panel"><div class="table-toolbar"><div><h2>Employee performance</h2><div class="panel-subtitle">Directory and sample KPI progress</div></div><div class="employee-toolbar"><input class="search" id="overview-search" type="search" placeholder="Search employees..." aria-label="Search employees"><select class="select" id="overview-table-department"><option value="all">All departments</option></select></div></div><div class="table-scroll"><table><thead><tr><th>EMPLOYEE</th><th>DEPARTMENT</th><th>KEY KPI</th><th>PROGRESS</th><th>STATUS</th></tr></thead><tbody id="overview-employee-rows"></tbody></table></div><div class="table-footer" id="overview-table-count"></div></section>
+        </section>
+
+        <section class="view" id="view-employees">
+          <div class="page-heading"><div><h1>Employees</h1><p class="subtitle">Browse the team or add an account to this company.</p></div><span class="date-pill">TENANT-SCOPED DIRECTORY</span></div>
+          <section class="panel form-section hidden" id="employee-create-panel"><div class="panel-heading"><div><h2>Add employee account</h2><div class="panel-subtitle">New users must change their temporary password outside this starter app.</div></div></div>
+            <form id="employee-form"><div class="form-grid">
+              <div class="field"><label for="new-name">Name</label><input id="new-name" maxlength="80" required></div>
+              <div class="field"><label for="new-email">Email</label><input id="new-email" type="email" required></div>
+              <div class="field"><label for="new-password">Temporary password (12+ characters)</label><input id="new-password" type="password" minlength="12" required></div>
+              <div class="field"><label for="new-title">Job title</label><input id="new-title" maxlength="100" required></div>
+              <div class="field"><label for="new-department">Department</label><select id="new-department" required></select></div>
+              <div class="field"><label for="new-role">Role</label><select id="new-role"><option value="employee">Employee</option><option value="manager">Manager</option><option value="department_leader">Department leader</option><option value="hr_admin">HR administrator</option><option value="executive">Executive approver</option><option value="ceo">CEO / executive approver</option><option value="platform_admin">Platform administrator</option></select></div>
+              <div class="field"><label for="new-manager">Manager</label><select id="new-manager"></select></div>
+            </div><div class="form-actions"><button class="btn primary" type="submit">Create employee</button></div></form>
+          </section>
+          <section class="panel table-panel"><div class="table-toolbar"><div><h2>People directory</h2><div class="panel-subtitle">Only employees in this workspace are listed</div></div><div class="employee-toolbar"><input class="search" id="employees-search" type="search" placeholder="Search name or role..." aria-label="Search employees"><select class="select" id="employees-department"><option value="all">All departments</option></select></div></div><div class="table-scroll"><table><thead><tr><th>EMPLOYEE</th><th>DEPARTMENT</th><th>MANAGER</th><th>KEY KPI</th><th>PROGRESS</th><th>STATUS</th></tr></thead><tbody id="employee-rows"></tbody></table></div><div class="table-footer" id="employees-count"></div></section>
+        </section>
+
+        <section class="view" id="view-performance">
+          <div class="page-heading"><div><h1>Performance</h1><p class="subtitle">Submit measurable results, record evidence references, and review performance.</p></div><span class="date-pill">QUARTERLY GOALS</span></div>
+          <div class="two-col">
+            <section class="panel"><div class="panel-heading"><div><h2>Department KPIs</h2><div class="panel-subtitle">Actual progress compared with target</div></div></div><div class="kpi-list" id="performance-kpis"></div></section>
+            <section class="panel"><div class="panel-heading"><div><h2>Submit performance result</h2><div class="panel-subtitle">Evidence is a text reference; uploads are not enabled.</div></div></div>
+              <form id="submission-form"><div class="form-grid">
+                <div class="field hidden" id="submission-employee-field"><label for="submission-employee">Employee</label><select id="submission-employee"></select></div>
+                <div class="field"><label for="submission-kpi">Department KPI</label><select id="submission-kpi" required></select></div>
+                <div class="field"><label for="submission-actual">Actual result</label><input id="submission-actual" type="number" min="0" step="any" required></div>
+                <div class="field"><label for="submission-period">Period (e.g. 2026-Q3)</label><input id="submission-period" value="2026-Q3" pattern="[0-9]{4}-Q[1-4]" required></div>
+                <div class="field"><label for="submission-evidence">Evidence reference</label><input id="submission-evidence" maxlength="500" placeholder="Fictional report name or ticket ID" required></div>
+              </div><div class="form-actions"><button class="btn primary" type="submit">Submit result</button></div></form>
+            </section>
+          </div>
+          <section class="panel form-section hidden" id="kpi-create-panel"><div class="panel-heading"><div><h2>Create a department KPI</h2><div class="panel-subtitle">Available to department leaders, HR, and tenant administrators.</div></div></div>
+            <form id="kpi-form"><div class="form-grid">
+              <div class="field"><label for="new-kpi-name">KPI name</label><input id="new-kpi-name" maxlength="100" required></div>
+              <div class="field"><label for="new-kpi-department">Department</label><select id="new-kpi-department" required></select></div>
+              <div class="field"><label for="new-kpi-target">Target</label><input id="new-kpi-target" type="number" min="0" step="any" required></div>
+              <div class="field"><label for="new-kpi-unit">Unit (%, count, USD...)</label><input id="new-kpi-unit" maxlength="20" required></div>
+              <div class="field"><label for="new-kpi-direction">Better performance means</label><select id="new-kpi-direction"><option value="higher">Higher value</option><option value="lower">Lower value</option></select></div>
+            </div><div class="form-actions"><button class="btn primary" type="submit">Create KPI</button></div></form>
+          </section>
+          <section class="panel table-panel"><div class="table-toolbar"><div><h2>Performance submissions</h2><div class="panel-subtitle">Review actions are restricted by role and reporting line</div></div></div><div class="table-scroll"><table><thead><tr><th>EMPLOYEE</th><th>DEPARTMENT</th><th>KPI</th><th>RESULT</th><th>PERIOD</th><th>STATUS</th><th>REVIEW</th></tr></thead><tbody id="performance-rows"></tbody></table></div><div class="table-footer" id="performance-count"></div></section>
+        </section>
+
+        <section class="view" id="view-recognition">
+          <div class="page-heading"><div><h1>Recognition &amp; promotion</h1><p class="subtitle">Nominate a colleague and move cases through role-checked review stages.</p></div><span class="date-pill">MANAGER → DEPARTMENT → HR → EXECUTIVE → CEO</span></div>
+          <section class="panel form-section"><div class="panel-heading"><div><h2>Submit a nomination</h2><div class="panel-subtitle">Use fictional information and explain the impact.</div></div></div>
+            <form id="nomination-form"><div class="form-grid">
+              <div class="field"><label for="nomination-employee">Nominee</label><select id="nomination-employee" required></select></div>
+              <div class="field"><label for="nomination-type">Nomination type</label><select id="nomination-type"><option value="impact_award">Impact award</option><option value="promotion">Promotion</option></select></div>
+              <div class="field"><label for="nomination-reason">Reason (10-1,000 characters)</label><textarea id="nomination-reason" minlength="10" maxlength="1000" required></textarea></div>
+            </div><div class="form-actions"><button class="btn primary" type="submit">Submit nomination</button></div></form>
+          </section>
+          <div class="nomination-grid" id="nomination-grid"></div>
+        </section>
+
+        <section class="view" id="view-audit"><div class="page-heading"><div><h1>Audit log</h1><p class="subtitle">A tenant-scoped history of important application changes.</p></div><span class="date-pill">HR / TENANT ADMIN</span></div><section class="panel table-panel"><div class="table-scroll"><table><thead><tr><th>WHEN</th><th>WHO</th><th>ACTION</th><th>RECORD</th><th>DETAILS</th></tr></thead><tbody id="audit-rows"></tbody></table></div></section></section>
+        <section class="view" id="view-import">
+          <div class="page-heading"><div><h1>Import fictional data</h1><p class="subtitle">Preview and validate CSV rows before saving them to this company.</p></div><span class="date-pill">TENANT-ADMIN / HR</span></div>
+          <div class="notice warning"><strong>Training-data safety:</strong> use fictional people and evidence only. Employee uploads create accounts with generated temporary passwords; the passwords are shown once after import. Do not upload real HR data.</div>
+          <section class="panel">
+            <div class="form-grid">
+              <div class="field"><label for="import-type">Data type</label><select id="import-type"><option value="employees">Employees</option><option value="kpis">Department KPIs</option><option value="submissions">Performance submissions</option></select></div>
+              <div class="field"><label for="csv-file">CSV file (up to 1 MB, maximum 100 rows)</label><input id="csv-file" type="file" accept=".csv,text/csv"></div>
+            </div>
+            <div class="form-actions"><button class="btn" id="download-template" type="button">Download CSV template</button><button class="btn primary" id="import-commit" type="button" disabled>Confirm import</button></div>
+            <div class="import-errors hidden" id="import-errors" role="alert"></div>
+            <div class="import-preview hidden" id="import-preview">
+              <strong id="import-preview-summary"></strong>
+              <div class="table-scroll"><table id="import-preview-table"></table></div>
+              <div class="import-preview-note" id="import-preview-note"></div>
+            </div>
+            <div class="import-result hidden" id="import-result"></div>
+          </section>
+          <section class="panel" style="margin-top:15px">
+            <h2>Required CSV columns</h2>
+            <div class="panel-subtitle" style="line-height:1.8">
+              <strong>Employees:</strong> name, email, department, job_title, role; optional manager_email (must already exist).<br>
+              <strong>KPIs:</strong> department, name, target, unit, direction (higher or lower).<br>
+              <strong>Submissions:</strong> employee_email, kpi_name, period (for example 2026-Q3), actual, evidence_note.
+            </div>
+          </section>
+        </section>
+        <p class="footer-note">Impact360 starter SaaS · SQLite local storage · No AI or paid API calls · Training data only</p>
+      </main>
+    </div>
+  </div>
+  <dialog id="password-dialog">
+    <form id="password-form">
+      <h2>Change password</h2><p class="panel-subtitle" style="margin-bottom:14px">Use at least 12 characters. Other active sessions will be signed out.</p>
+      <div class="form-grid">
+        <div class="field"><label for="current-password">Current password</label><input id="current-password" type="password" autocomplete="current-password" required></div>
+        <div class="field"><label for="new-password-change">New password (12+ characters)</label><input id="new-password-change" type="password" minlength="12" autocomplete="new-password" required></div>
+      </div>
+      <div class="dialog-actions"><button class="btn" id="cancel-password-button" type="button">Cancel</button><button class="btn primary" type="submit">Save password</button></div>
+    </form>
+  </dialog>
+  <div id="toast" role="status" aria-live="polite"></div>
+  <script src="/app.js" defer></script>
+</body>
+</html>
