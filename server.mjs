@@ -82,7 +82,7 @@ async function initializeDatabase() {
     display_name TEXT NOT NULL,
     role TEXT NOT NULL,
     password_hash TEXT NOT NULL,
-    active INTEGER NOT NULL DEFAULT 1,
+    active BOOLEAN NOT NULL DEFAULT TRUE,
     created_at TEXT NOT NULL,
     UNIQUE(tenant_id, email),
     UNIQUE(tenant_id, id),
@@ -176,7 +176,7 @@ const statements = {
   sessionUser: db.prepare(`SELECT u.id, u.tenant_id, u.email, u.display_name, u.role, u.department_id, u.employee_id, d.name AS department_name
     FROM sessions s JOIN users u ON u.id = s.user_id AND u.tenant_id = s.tenant_id
     LEFT JOIN departments d ON d.id = u.department_id AND d.tenant_id = u.tenant_id
-    WHERE s.token_hash = ? AND s.expires_at > ? AND u.active = 1`),
+    WHERE s.token_hash = ? AND s.expires_at > ? AND u.active = TRUE`),
   departments: db.prepare("SELECT id, name FROM departments WHERE tenant_id = ? ORDER BY name"),
   employees: db.prepare(`SELECT e.id, e.user_id, e.department_id, e.manager_employee_id, e.job_title, u.display_name AS name, u.email, u.role, d.name AS department_name,
       (SELECT e2.display_name FROM employees e1 JOIN users e2 ON e2.id = e1.user_id AND e2.tenant_id = e1.tenant_id WHERE e1.id = e.manager_employee_id AND e1.tenant_id = e.tenant_id) AS manager_name
@@ -258,7 +258,7 @@ async function seedIfNeeded() {
       await insertDepartment.run(deptId, tenantId, name);
     }
     const insertUser = db.prepare(`INSERT INTO users (id,tenant_id,department_id,employee_id,email,display_name,role,password_hash,active,created_at)
-      VALUES (?,?,?,?,?,?,?,?,1,?)`);
+      VALUES (?,?,?,?,?,?,?,?,TRUE,?)`);
     const insertEmployee = db.prepare(`INSERT INTO employees (id,tenant_id,user_id,department_id,manager_employee_id,job_title,created_at)
       VALUES (?,?,?,?,?,?,?)`);
     const people = [];
@@ -273,7 +273,7 @@ async function seedIfNeeded() {
       people.push({ userId, employeeId, name, department });
     }
     const insertPrivilegedUser = db.prepare(`INSERT INTO users (id,tenant_id,email,display_name,role,password_hash,active,created_at)
-      VALUES (?,?,?,?,?,?,1,?)`);
+      VALUES (?,?,?,?,?,?,TRUE,?)`);
     for (const [email, displayName, role] of [
       ["hr@northstar.example.invalid", "Harper Lane", "hr_admin"],
       ["executive@northstar.example.invalid", "Quinn Taylor", "executive"],
@@ -283,7 +283,7 @@ async function seedIfNeeded() {
     }
     const adminId = id();
     await db.prepare(`INSERT INTO users (id,tenant_id,email,display_name,role,password_hash,active,created_at)
-      VALUES (?,?,?,?,?,?,1,?)`).run(adminId, tenantId, "admin@northstar.example.invalid", "Demo Tenant Admin", "tenant_admin", passwordHash, createdAt);
+      VALUES (?,?,?,?,?,?,TRUE,?)`).run(adminId, tenantId, "admin@northstar.example.invalid", "Demo Tenant Admin", "tenant_admin", passwordHash, createdAt);
     const insertKpi = db.prepare(`INSERT INTO kpis (id,tenant_id,department_id,name,unit,target,direction,created_at)
       VALUES (?,?,?,?,?,?,?,?)`);
     const kpiRecords = [];
@@ -607,7 +607,7 @@ async function handleApi(request, response, url) {
         const insertDepartment = db.prepare("INSERT INTO departments (id,tenant_id,name) VALUES (?,?,?)");
         for (const departmentName of departmentNames) await insertDepartment.run(id(), tenantId, departmentName);
         await db.prepare(`INSERT INTO users (id,tenant_id,email,display_name,role,password_hash,active,created_at)
-          VALUES (?,?,?,?,'tenant_admin',?,1,?)`).run(userId, tenantId, email, name, passwordHash, createdAt);
+          VALUES (?,?,?,?,'tenant_admin',?,TRUE,?)`).run(userId, tenantId, email, name, passwordHash, createdAt);
         const context = { id: userId, tenant_id: tenantId };
         await audit(context, "tenant_registered", "tenant", tenantId, "New tenant registered.");
       });
@@ -632,7 +632,7 @@ async function handleApi(request, response, url) {
     attempt.count++;
     loginAttempts.set(attemptKey, attempt);
     if (attempt.count > 10) return sendError(response, 429, "Too many sign-in attempts. Wait one minute and try again.");
-    const users = await db.prepare("SELECT * FROM users WHERE lower(email) = lower(?) AND active = 1").all(email);
+    const users = await db.prepare("SELECT * FROM users WHERE lower(email) = lower(?) AND active = TRUE").all(email);
     let user = null;
     for (const candidate of users) {
       if (await verifyPassword(String(body.password || ""), candidate.password_hash)) { user = candidate; break; }
@@ -738,7 +738,7 @@ async function handleApi(request, response, url) {
       }
     }
     const insertEmployeeUser = db.prepare(`INSERT INTO users (id,tenant_id,department_id,employee_id,email,display_name,role,password_hash,active,created_at)
-      VALUES (?,?,?,?,?,?,?,?,1,?)`);
+      VALUES (?,?,?,?,?,?,?,?,TRUE,?)`);
     const insertEmployee = db.prepare(`INSERT INTO employees (id,tenant_id,user_id,department_id,manager_employee_id,job_title,created_at)
       VALUES (?,?,?,?,?,?,?)`);
     const insertKpi = db.prepare(`INSERT INTO kpis (id,tenant_id,department_id,name,unit,target,direction,created_at)
@@ -803,7 +803,7 @@ async function handleApi(request, response, url) {
     const passwordHash = await scryptHash(password);
     await transaction(async () => {
       await db.prepare(`INSERT INTO users (id,tenant_id,department_id,employee_id,email,display_name,role,password_hash,active,created_at)
-        VALUES (?,?,?,?,?,?,?,?,1,?)`).run(userId, context.tenant_id, departmentId, employeeId, email, name, role, passwordHash, now());
+        VALUES (?,?,?,?,?,?,?,?,TRUE,?)`).run(userId, context.tenant_id, departmentId, employeeId, email, name, role, passwordHash, now());
       await db.prepare(`INSERT INTO employees (id,tenant_id,user_id,department_id,manager_employee_id,job_title,created_at)
         VALUES (?,?,?,?,?,?,?)`).run(employeeId, context.tenant_id, userId, departmentId, managerId, title, now());
       await audit(context, "employee_created", "employee", employeeId, `Created ${email} with role ${role}.`);
